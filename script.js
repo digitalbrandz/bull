@@ -73,7 +73,7 @@ posInp.addEventListener('change', function(e) { document.querySelector('#positio
 stkeInp.addEventListener('keyup', function(e) { document.querySelector('#strike #number').innerHTML = e.currentTarget.value; saveChanges() });
 dteInp.addEventListener('change', function(e) { let b = e.currentTarget.value.split(/\D/), thedate = new Date(b[0], --b[1], b[2]), formatdate = thedate.toString("dd MMM yy"); document.querySelector('#date').innerHTML = formatdate;
 let diff = Math.round((thedate-new Date())/(1000*60*60*24));
-if(diff <= 5) {
+if(diff <= 3) {
     document.querySelector('#clock').classList.add('weekly');
 }else{
     document.querySelector('#clock').classList.remove('weekly');
