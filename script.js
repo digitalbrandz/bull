@@ -4,7 +4,12 @@ if(form) {
 var formObj = JSON.parse(form);
   const keys = Object.keys(formObj );
   keys.forEach((key, index) => {
+    if(key !== 'imgInp') {
     document.querySelector('#' + key ).value = formObj[key];  
+    }else{
+      document.querySelector('#blah').src = formObj[key];
+    }
+    
 });
 }
 
@@ -17,7 +22,8 @@ function readURL(input) {
         
         reader.onload = function (e) {
             var blah = document.querySelector('#blah');
-            blah.src = e.target.result
+            blah.src = e.target.result;
+            updateTotals();
         }
         
         reader.readAsDataURL(input.files[0]);
@@ -64,6 +70,8 @@ dteInp = document.querySelector('#dte'),
 posInp = document.querySelector('#position'),
 iniInp = document.querySelector('#initialprice'),
 currInp = document.querySelector('#currentprice');
+weeklycheck = document.querySelector('#isweekly');
+weeklycheck.addEventListener('change', toggleWeekly );
 imgInp.addEventListener('change', function(e) {readURL(e.currentTarget); });
 qtyInp.addEventListener('keyup', updateTotals );
 qtyInp.addEventListener('change', updateTotals );
@@ -113,6 +121,15 @@ dteInp.value = nextFriday.getFullYear().toString() + '-' + (nextFriday.getMonth(
     optInp.dispatchEvent(evt);
 
 
+function toggleWeekly(e) {
+  let weekly = document.querySelector('#weekly');
+  if(weeklycheck.checked) {
+    weekly.style.display = "inline-block";
+  }else{
+    weekly.style.display = "none";
+  }
+}
+
 function updateTotals(e) {
 
 let qtyInp = document.querySelector('#qty'),
@@ -121,15 +138,32 @@ iniInp = document.querySelector('#initialprice'),
 currInp = document.querySelector('#currentprice'),
 avgPrice = document.querySelector('#averagePrice'),
 marketValue = document.querySelector('#marketValue'),
-profitLoss = document.querySelector('#profitLoss #money'),
+profitLossWrap = document.querySelector('#profitLoss'),
+profitLoss = profitLossWrap.querySelector('#money'),
 profitLossPercent = document.querySelector('#profitLoss #percent'),
-daysProfitLossPercent = document.querySelector('#daysProfitLoss #money2');
+daysProfitLossWrap = document.querySelector('#daysProfitLoss'),
+daysprofitLossPercent = document.querySelector('#percent3'),
+daysProfitLoss = daysProfitLossWrap.querySelector('#money2');
 
 quantity.innerHTML = qtyInp.value;
 marketValue.innerHTML = formatMoney( ((qtyInp.value * 100) * iniInp.value) + (((currInp.value - iniInp.value) * 100) * qtyInp.value)  ).replace('$','');
-profitLoss.innerHTML =  formatMoney( ((currInp.value - iniInp.value) * 100) * qtyInp.value ).replace('$','');
-profitLossPercent.innerHTML =   ((currInp.value-iniInp.value)/iniInp.value * 100).toFixed(2);
-daysProfitLossPercent.innerHTML = formatMoney(Number(profitLoss.innerHTML.replace(/[^0-9.-]+/g,"")) - (qtyInp.value * 0.169).toFixed(2)).replace('$','');
+
+if(Number(currInp.value) > Number(iniInp.value)) {
+profitLoss.innerHTML =  '+' + formatMoney( ((currInp.value - iniInp.value) * 100) * qtyInp.value ).replace('$','');
+profitLossPercent.innerHTML = ' +' + numberWithCommas(((currInp.value-iniInp.value)/iniInp.value * 100).toFixed(2));
+daysProfitLoss.innerHTML = '+' + formatMoney(Number(profitLoss.innerHTML.replace(/[^0-9.-]+/g,"")) - (qtyInp.value * 0.169).toFixed(2)).replace('$','');
+daysprofitLossPercent.innerHTML = profitLossPercent.innerHTML;
+profitLossWrap.classList.remove('red');
+daysProfitLossWrap.classList.remove('red');
+}else{
+  profitLoss.innerHTML = '-' + formatMoney( ((iniInp.value - currInp.value) * 100) * qtyInp.value ).replace('$','');
+  profitLossPercent.innerHTML =  ((currInp.value-iniInp.value)/iniInp.value * 100).toFixed(2);
+  daysprofitLossPercent.innerHTML = ((currInp.value-iniInp.value)/iniInp.value * 100).toFixed(2);
+  daysProfitLoss.innerHTML = formatMoney(Number(profitLoss.innerHTML.replace(/[^0-9.-]+/g,"")) - (qtyInp.value * 0.169).toFixed(2)).replace('$','');
+  profitLossWrap.classList.add('red');
+  daysProfitLossWrap.classList.add('red');
+}
+
 avgPrice.innerHTML = iniInp.value;
 saveChanges();
 }
@@ -142,6 +176,8 @@ function saveChanges() {
     // do whatever
     if(input.type !== 'file') {
     data[input.id] =  input.value;
+    }else{
+      data[input.id] =  document.querySelector('#blah').src;
     }
   });
   localStorage.setItem('form', JSON.stringify(data));
