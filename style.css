@@ -95,6 +95,10 @@
         height: 13px;
         margin-left: 3px;
     }
+    #blah2 {
+        position: absolute;
+        bottom: 1px;
+    }
     #option {
         margin-left: 5px;
     }
